@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  adicionarMembro,
+  adicionarMembroPorEmail,
   buscarGrupo,
   deletarGrupo,
   removerMembro,
@@ -33,7 +33,7 @@ export default function GrupoDetalhePage() {
   const [usuario, setUsuario] = useState<UsuarioResponse | null>(null)
   const [grupo, setGrupo] = useState<GrupoResponse | null>(null)
   const [carregando, setCarregando] = useState(true)
-  const [novoMembroId, setNovoMembroId] = useState("")
+  const [novoMembroEmail, setNovoMembroEmail] = useState("")
   const [processando, setProcessando] = useState(false)
   const [copiado, setCopiado] = useState(false)
 
@@ -66,12 +66,11 @@ export default function GrupoDetalhePage() {
 
   async function handleAdicionar(e: React.FormEvent) {
     e.preventDefault()
-    const id = Number(novoMembroId)
-    if (!id) return
+    if (!novoMembroEmail) return
     setProcessando(true)
     try {
-      await adicionarMembro(grupoId, id)
-      setNovoMembroId("")
+      await adicionarMembroPorEmail(grupoId, novoMembroEmail)
+      setNovoMembroEmail("")
       await recarregar()
       toast.success("Membro adicionado")
     } catch (err) {
@@ -178,14 +177,13 @@ export default function GrupoDetalhePage() {
               </p>
               <form onSubmit={handleAdicionar} className="flex items-end gap-2">
                 <div className="flex flex-1 flex-col gap-1.5">
-                  <Label htmlFor="membro">ID do usuário</Label>
+                  <Label htmlFor="membro">Email do usuário</Label>
                   <Input
                     id="membro"
-                    type="number"
-                    min={1}
-                    value={novoMembroId}
-                    onChange={(e) => setNovoMembroId(e.target.value)}
-                    placeholder="Ex: 42"
+                    type="email"
+                    value={novoMembroEmail}
+                    onChange={(e) => setNovoMembroEmail(e.target.value)}
+                    placeholder="Ex: amigo@email.com"
                     required
                   />
                 </div>

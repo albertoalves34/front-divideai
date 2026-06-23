@@ -104,6 +104,14 @@ export function adicionarMembro(grupoId: number, usuarioId: number) {
   })
 }
 
+export function adicionarMembroPorEmail(grupoId: number, email: string) {
+  return request<void>(`/grupos/${grupoId}/membros/email`, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: email,
+  })
+}
+
 export function removerMembro(grupoId: number, usuarioId: number) {
   return request<void>(`/grupos/${grupoId}/membros/${usuarioId}`, {
     method: "DELETE",
