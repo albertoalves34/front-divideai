@@ -361,29 +361,42 @@ export default function GrupoDetalhePage() {
             </section>
 
             {/* Resumo de saldos */}
-            {resumo && resumo.debitosPendentes.length > 0 && (
+            {despesas.length > 0 && (
               <section className="rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-1 text-lg font-semibold">Quem deve a quem</h2>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Total gasto: {formatarValor(resumo.totalGasto)}
-                </p>
-                <ul className="flex flex-col gap-2">
-                  {resumo.debitosPendentes.map((d, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-2 text-sm"
-                    >
-                      <span>
-                        <span className="font-medium">{d.DevedorNome.split(" ")[0]}</span>
-                        {" deve para "}
-                        <span className="font-medium">{d.credorNome.split(" ")[0]}</span>
-                      </span>
-                      <span className="font-semibold text-destructive">
-                        {formatarValor(d.valor)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {!resumo ? (
+                  <p className="mt-3 text-sm text-muted-foreground">Calculando saldos…</p>
+                ) : resumo.debitosPendentes.length === 0 ? (
+                  <>
+                    <p className="mb-1 text-sm text-muted-foreground">
+                      Total gasto: {formatarValor(resumo.totalGasto)}
+                    </p>
+                    <p className="mt-3 text-sm font-medium text-green-600">Todos estão quites!</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      Total gasto: {formatarValor(resumo.totalGasto)}
+                    </p>
+                    <ul className="flex flex-col gap-2">
+                      {resumo.debitosPendentes.map((d, i) => (
+                        <li
+                          key={i}
+                          className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-2 text-sm"
+                        >
+                          <span>
+                            <span className="font-medium">{d.DevedorNome.split(" ")[0]}</span>
+                            {" deve para "}
+                            <span className="font-medium">{d.credorNome.split(" ")[0]}</span>
+                          </span>
+                          <span className="font-semibold text-destructive">
+                            {formatarValor(d.valor)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </section>
             )}
 
