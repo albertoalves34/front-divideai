@@ -57,6 +57,7 @@ export default function GrupoDetalhePage() {
   const [grupo, setGrupo] = useState<GrupoResponse | null>(null)
   const [despesas, setDespesas] = useState<DespesaResponse[]>([])
   const [resumo, setResumo] = useState<ResumoGrupoResponse | null>(null)
+  const [resumoCarregando, setResumoCarregando] = useState(true)
   const [carregando, setCarregando] = useState(true)
 
   const [novoMembroEmail, setNovoMembroEmail] = useState("")
@@ -71,15 +72,24 @@ export default function GrupoDetalhePage() {
   const [pagadorId, setPagadorId] = useState<number | "">("")
   const [processandoDespesa, setProcessandoDespesa] = useState(false)
 
+  async function carregarResumo() {
+    setResumoCarregando(true)
+    try {
+      const r = await buscarResumo(grupoId)
+      setResumo(r)
+    } catch {
+      setResumo(null)
+    } finally {
+      setResumoCarregando(false)
+    }
+  }
+
   async function recarregar() {
     const g = await buscarGrupo(grupoId)
     setGrupo(g)
-    const [d, r] = await Promise.allSettled([
-      listarDespesas(grupoId),
-      buscarResumo(grupoId),
-    ])
-    if (d.status === "fulfilled") setDespesas(d.value)
-    if (r.status === "fulfilled") setResumo(r.value)
+    const d = await listarDespesas(grupoId).catch(() => null)
+    if (d) setDespesas(d)
+    await carregarResumo()
   }
 
   useEffect(() => {
@@ -93,16 +103,18 @@ export default function GrupoDetalhePage() {
       .then((g) => {
         setGrupo(g)
         setPagadorId(u.id)
-        return Promise.allSettled([listarDespesas(grupoId), buscarResumo(grupoId)])
+        return listarDespesas(grupoId).catch(() => [] as DespesaResponse[])
       })
-      .then((results) => {
-        if (!results) return
-        const [d, r] = results
-        if (d.status === "fulfilled") setDespesas(d.value)
-        if (r.status === "fulfilled") setResumo(r.value)
+      .then((d) => {
+        setDespesas(d)
       })
       .catch(() => toast.error("Grupo não encontrado"))
       .finally(() => setCarregando(false))
+
+    buscarResumo(grupoId)
+      .then(setResumo)
+      .catch(() => setResumo(null))
+      .finally(() => setResumoCarregando(false))
   }, [router, grupoId])
 
   async function copiarLink() {
@@ -364,8 +376,10 @@ export default function GrupoDetalhePage() {
             {despesas.length > 0 && (
               <section className="rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-1 text-lg font-semibold">Quem deve a quem</h2>
-                {!resumo ? (
+                {resumoCarregando ? (
                   <p className="mt-3 text-sm text-muted-foreground">Calculando saldos…</p>
+                ) : !resumo ? (
+                  <p className="mt-3 text-sm text-muted-foreground">Não foi possível calcular os saldos.</p>
                 ) : resumo.debitosPendentes.length === 0 ? (
                   <>
                     <p className="mb-1 text-sm text-muted-foreground">

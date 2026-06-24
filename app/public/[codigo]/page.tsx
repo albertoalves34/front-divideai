@@ -24,13 +24,13 @@ export default function GrupoPublicoPage() {
     buscarGrupoPublico(codigo)
       .then((g) => {
         setGrupo(g)
-        return buscarResumo(g.id)
+        setCarregando(false)
+        buscarResumo(g.id).then(setResumo).catch(() => {})
       })
-      .then(setResumo)
-      .catch((err) => {
-        if (!grupo) setErro(true)
+      .catch(() => {
+        setErro(true)
+        setCarregando(false)
       })
-      .finally(() => setCarregando(false))
   }, [codigo])
 
   return (
