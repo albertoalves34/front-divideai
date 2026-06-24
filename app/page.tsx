@@ -44,11 +44,9 @@ export default function HomePage() {
               Despesas compartilhadas em um só lugar.
             </p>
           </div>
-          <Button asChild size="sm">
-            <Link href="/grupos/criar">
-              <Plus className="h-4 w-4" />
-              Novo
-            </Link>
+          <Button size="sm" onClick={() => router.push("/grupos/criar")}>
+            <Plus className="h-4 w-4" />
+            Novo
           </Button>
         </div>
 
@@ -72,11 +70,9 @@ export default function HomePage() {
                 Crie um grupo para começar a dividir despesas.
               </p>
             </div>
-            <Button asChild>
-              <Link href="/grupos/criar">
-                <Plus className="h-4 w-4" />
-                Criar grupo
-              </Link>
+            <Button onClick={() => router.push("/grupos/criar")}>
+              <Plus className="h-4 w-4" />
+              Criar grupo
             </Button>
           </div>
         ) : (

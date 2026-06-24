@@ -24,11 +24,9 @@ export function AppHeader({ nome }: { nome?: string }) {
           <span className="text-lg font-semibold tracking-tight">Divideaí</span>
         </Link>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/perfil" className="flex items-center gap-1.5">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">{nome ?? "Perfil"}</span>
-            </Link>
+          <Button variant="ghost" size="sm" onClick={() => router.push("/perfil")}>
+            <User className="h-4 w-4" />
+            <span className="hidden sm:inline">{nome ?? "Perfil"}</span>
           </Button>
           <Button
             variant="ghost"

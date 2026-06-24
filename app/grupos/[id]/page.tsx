@@ -212,11 +212,9 @@ export default function GrupoDetalhePage() {
     <div className="min-h-dvh">
       <AppHeader nome={usuario.nome.split(" ")[0]} />
       <main className="mx-auto max-w-2xl px-4 py-6">
-        <Button variant="ghost" size="sm" asChild className="mb-4 -ml-2">
-          <Link href="/">
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Link>
+        <Button variant="ghost" size="sm" className="mb-4 -ml-2" onClick={() => router.push("/")}>
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
         </Button>
 
         {carregando ? (
