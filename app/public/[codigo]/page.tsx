@@ -4,11 +4,25 @@ import { Wallet } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ParticipantesLista } from "@/components/participantes-lista"
-import { buscarGrupoPublico, buscarResumo } from "@/lib/api"
-import type { GrupoResponse, ResumoGrupoResponse } from "@/lib/types"
+import { buscarGrupoPublico, buscarResumo, listarDespesas } from "@/lib/api"
+import type { DespesaResponse, GrupoResponse, ResumoGrupoResponse } from "@/lib/types"
+
+const CATEGORIAS: Record<string, string> = {
+  ALIMENTACAO: "Alimentação",
+  MORADIA: "Moradia",
+  TRANSPORTE: "Transporte",
+  LAZER: "Lazer",
+  SAUDE: "Saúde",
+  OUTROS: "Outros",
+}
 
 function formatarValor(valor: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor)
+}
+
+function formatarData(data: string) {
+  const [ano, mes, dia] = data.split("-")
+  return `${dia}/${mes}/${ano}`
 }
 
 export default function GrupoPublicoPage() {
@@ -17,6 +31,7 @@ export default function GrupoPublicoPage() {
 
   const [grupo, setGrupo] = useState<GrupoResponse | null>(null)
   const [resumo, setResumo] = useState<ResumoGrupoResponse | null>(null)
+  const [despesas, setDespesas] = useState<DespesaResponse[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
 
@@ -26,12 +41,17 @@ export default function GrupoPublicoPage() {
         setGrupo(g)
         setCarregando(false)
         buscarResumo(g.id).then(setResumo).catch(() => {})
+        listarDespesas(g.id).then(setDespesas).catch(() => {})
       })
       .catch(() => {
         setErro(true)
         setCarregando(false)
       })
   }, [codigo])
+
+  function nomePagador(id: number) {
+    return grupo?.participantes.find((p) => p.id === id)?.nome ?? `#${id}`
+  }
 
   return (
     <div className="min-h-dvh">
@@ -102,6 +122,37 @@ export default function GrupoPublicoPage() {
               <p className="text-center text-sm font-medium text-green-600">
                 Todos estão quites!
               </p>
+            )}
+
+            {/* Histórico */}
+            {despesas.length > 0 && (
+              <section>
+                <h2 className="mb-3 text-lg font-semibold">
+                  Histórico
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    {despesas.length} despesa{despesas.length !== 1 ? "s" : ""}
+                  </span>
+                </h2>
+                <ul className="flex flex-col gap-2">
+                  {[...despesas].reverse().map((d) => (
+                    <li
+                      key={d.id}
+                      className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{d.descricao}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatarData(d.data)} · {CATEGORIAS[d.categoria] ?? d.categoria} · pago por{" "}
+                          <span className="font-medium">{nomePagador(d.pagadorId).split(" ")[0]}</span>
+                        </p>
+                      </div>
+                      <span className="ml-4 shrink-0 font-semibold">
+                        {formatarValor(d.valor)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             )}
 
             <section>
