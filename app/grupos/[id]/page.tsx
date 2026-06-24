@@ -22,6 +22,7 @@ import {
   adicionarMembroPorEmail,
   buscarGrupo,
   buscarResumo,
+  deletarDespesa,
   deletarGrupo,
   listarDespesas,
   registrarDespesa,
@@ -158,6 +159,17 @@ export default function GrupoDetalhePage() {
       await deletarGrupo(grupoId)
       toast.success("Grupo excluído")
       router.push("/")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível excluir")
+    }
+  }
+
+  async function handleDeletarDespesa(d: DespesaResponse) {
+    if (!confirm(`Excluir "${d.descricao}"?`)) return
+    try {
+      await deletarDespesa(grupoId, d.id)
+      toast.success("Despesa excluída")
+      await recarregar()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível excluir")
     }
@@ -441,9 +453,18 @@ export default function GrupoDetalhePage() {
                           <span className="font-medium">{nomePagador(d.pagadorId).split(" ")[0]}</span>
                         </p>
                       </div>
-                      <span className="ml-4 shrink-0 font-semibold">
-                        {formatarValor(d.valor)}
-                      </span>
+                      <div className="ml-4 flex shrink-0 items-center gap-3">
+                        <span className="font-semibold">{formatarValor(d.valor)}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                          onClick={() => handleDeletarDespesa(d)}
+                          aria-label="Excluir despesa"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </li>
                   ))}
                 </ul>

@@ -135,6 +135,10 @@ export function listarDespesas(grupoId: number) {
   return request<DespesaResponse[]>(`/grupos/${grupoId}/despesas`)
 }
 
+export function deletarDespesa(grupoId: number, despesaId: number) {
+  return request<void>(`/grupos/${grupoId}/despesas/${despesaId}`, { method: "DELETE" })
+}
+
 export function buscarResumo(grupoId: number) {
   return request<ResumoGrupoResponse>(`/grupos/${grupoId}/resumo`)
 }
