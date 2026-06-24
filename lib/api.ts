@@ -1,4 +1,4 @@
-import type { GrupoResponse, UsuarioResponse } from "./types"
+import type { DespesaRequest, DespesaResponse, GrupoResponse, ResumoGrupoResponse, UsuarioResponse } from "./types"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ""
 
@@ -120,4 +120,21 @@ export function removerMembro(grupoId: number, usuarioId: number) {
 
 export function buscarGrupoPublico(codigoPublico: string) {
   return request<GrupoResponse>(`/public/${codigoPublico}`)
+}
+
+// ---------- Despesas ----------
+
+export function registrarDespesa(grupoId: number, body: DespesaRequest) {
+  return request<DespesaResponse>(`/grupos/${grupoId}/despesas`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+}
+
+export function listarDespesas(grupoId: number) {
+  return request<DespesaResponse[]>(`/grupos/${grupoId}/despesas`)
+}
+
+export function buscarResumo(grupoId: number) {
+  return request<ResumoGrupoResponse>(`/grupos/${grupoId}/resumo`)
 }
