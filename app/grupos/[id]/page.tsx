@@ -72,14 +72,14 @@ export default function GrupoDetalhePage() {
   const [processandoDespesa, setProcessandoDespesa] = useState(false)
 
   async function recarregar() {
-    const [g, d, r] = await Promise.all([
-      buscarGrupo(grupoId),
+    const g = await buscarGrupo(grupoId)
+    setGrupo(g)
+    const [d, r] = await Promise.allSettled([
       listarDespesas(grupoId),
       buscarResumo(grupoId),
     ])
-    setGrupo(g)
-    setDespesas(d)
-    setResumo(r)
+    if (d.status === "fulfilled") setDespesas(d.value)
+    if (r.status === "fulfilled") setResumo(r.value)
   }
 
   useEffect(() => {
@@ -89,18 +89,19 @@ export default function GrupoDetalhePage() {
       return
     }
     setUsuario(u)
-    Promise.all([
-      buscarGrupo(grupoId),
-      listarDespesas(grupoId),
-      buscarResumo(grupoId),
-    ])
-      .then(([g, d, r]) => {
+    buscarGrupo(grupoId)
+      .then((g) => {
         setGrupo(g)
-        setDespesas(d)
-        setResumo(r)
         setPagadorId(u.id)
+        return Promise.allSettled([listarDespesas(grupoId), buscarResumo(grupoId)])
       })
-      .catch(() => toast.error("Erro ao carregar grupo"))
+      .then((results) => {
+        if (!results) return
+        const [d, r] = results
+        if (d.status === "fulfilled") setDespesas(d.value)
+        if (r.status === "fulfilled") setResumo(r.value)
+      })
+      .catch(() => toast.error("Grupo não encontrado"))
       .finally(() => setCarregando(false))
   }, [router, grupoId])
 
